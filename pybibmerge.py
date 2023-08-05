@@ -5,6 +5,15 @@ import re
 bib_folder = './bibfiles/'
 
 def parse_file(file_path):
+    """Parses a BibTeX file and returns a dictionary of its entries.
+
+    Args:
+        file_path (str): The path to the BibTeX file.
+
+    Returns:
+        dict: A dictionary of the BibTeX file's entries, where each key is the entry's
+            key and each value is a dictionary of the entry's fields.
+    """
     entries = {}
     with open(file_path, 'r') as file:
         content = file.read()
@@ -28,7 +37,17 @@ def parse_file(file_path):
     return entries
 
 
-def merge_dictlist(dicts, merge_values):
+def merge_dict_list(dicts, merge_values):
+    """Merges a list of dictionaries into a single dictionary.
+
+    Args:
+        dicts (list): A list of dictionaries to merge.
+        merge_values (function): A function that takes two values and returns the
+            merged value.
+
+    Returns:
+        dict: A dictionary that is the result of merging all the input dictionaries.
+    """
     merged_dict = {}
     for d in dicts:
         for key, value in d.items():
@@ -40,6 +59,15 @@ def merge_dictlist(dicts, merge_values):
 
 
 def merge_entries(dict1, dict2):
+    """Merges two BibTeX entries into a single entry.
+
+    Args:
+        dict1 (dict): The first BibTeX entry to merge.
+        dict2 (dict): The second BibTeX entry to merge.
+
+    Returns:
+        dict: A dictionary that is the result of merging the two input BibTeX entries.
+    """
     merged_dict = dict1.copy()
     # find dict priority in case of duplicate keys (choose most recent year)
     prioritize_dict2 = False
@@ -55,6 +83,12 @@ def merge_entries(dict1, dict2):
     return merged_dict
 
 def write_to_file(data, file_path):
+    """Writes a dictionary of BibTeX entries to a file.
+
+    Args:
+        data (dict): A dictionary of BibTeX entries to write to the file.
+        file_path (str): The path to the file to write to.
+    """
     max_key_length = find_longest_key_length(data)
     with open(file_path, 'w') as f:
         for key, value in data.items():
@@ -67,6 +101,14 @@ def write_to_file(data, file_path):
             f.write('\n')
 
 def find_longest_key_length(d):
+    """Finds the length of the longest key in a dictionary of BibTeX entries.
+
+    Args:
+        d (dict): A dictionary of BibTeX entries.
+
+    Returns:
+        int: The length of the longest key in the input dictionary.
+    """
     max_length = 0
     for inner_dict in d.values():
         for key in inner_dict.keys():
@@ -85,7 +127,7 @@ if __name__ == '__main__':
     file_dicts = [parse_file(file_name) for file_name in file_names]
 
     # merge dictionnaries from all read files
-    merged_dict = merge_dictlist(file_dicts, merge_entries)
+    merged_dict = merge_dict_list(file_dicts, merge_entries)
 
     # write merged bibtex file
     write_to_file(merged_dict, './merged.bib')
