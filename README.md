@@ -6,7 +6,7 @@ Python script to merge BibTeX files
 ```
 git clone https://github.com/gautierronan/pybibmerge.git
 ```
- 2. Replace the example BibTeX files inside the `bibfiles/` directory by your own BibTeX files you want to merge.
+ 2. Replace the example BibTeX files inside the `bibfiles/` directory by the BibTeX files you want to merge.
  3. Run the python script:
 ```python
 python pybibmerge.py
