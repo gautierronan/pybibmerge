@@ -18,6 +18,7 @@ def parse_file(file_path):
     with open(file_path, 'r') as file:
         content = file.read()
 
+    # parse entries with a key
     pattern_entry = r"@(\w+)\{([\w\d]+),\s*([^@]+)\}"
     matches = re.findall(pattern_entry, content, re.MULTILINE)
 
@@ -31,6 +32,33 @@ def parse_file(file_path):
         }
         for key, field in fields:
             entry[key.strip()] = field.strip()
+
+        entries[entry_key] = entry
+
+    # parse entries without a key
+    pattern_entry = r"@(\w+)\{[^\w]+\s*([^@]+)\}"
+    matches = re.findall(pattern_entry, content, re.MULTILINE)
+
+    for match in matches:
+        entry_type = match[0]
+        pattern_fields = r"(\w+)\s*=\s*{(.+)}"
+        fields = re.findall(pattern_fields, match[1], re.MULTILINE)
+        entry = {
+            'type': entry_type,
+        }
+        for key, field in fields:
+            entry[key.strip()] = field.strip()
+
+        # generate key if possible
+        entry_key = ''
+        if 'author' in entry:
+            entry_key += entry['author'].split(',')[0].split(' ')[0].lower()
+        if 'year' in entry:
+            entry_key += entry['year']
+        if 'title' in entry:
+            entry_key += entry['title'].split(' ')[0].lower()
+        if 'author' not in entry and 'title' not in entry:
+            raise Exception('A key cannot be generated for an entry because it does not have an author nor a title.')
 
         entries[entry_key] = entry
 
