@@ -119,7 +119,7 @@ def write_to_file(data, file_path):
     """
     max_key_length = find_longest_key_length(data)
     # round up to nearest multiple of 4
-    tab_length = max_key_length - (max_key_length % 4) + 3
+    tab_length = max_key_length - (max_key_length % 4) + 4
 
     with open(file_path, 'w') as f:
         for key, value in sorted(data.items()):
@@ -127,9 +127,39 @@ def write_to_file(data, file_path):
             for field_key, field_value in sorted(value.items()):
                 if field_key != 'type':
                     spaces = ' ' * (tab_length - len(field_key))
-                    f.write(f'    {field_key} {spaces}= {{{field_value}}},\n')
+                    if field_value.startswith('{') and field_value.endswith('}'):
+                        field_value = field_value[1:-1]
+                    prefix = f'    {field_key}{spaces}= ' + '{'
+                    write_long_text_to_file(field_value, f, indent=8, prefix=prefix)
+                    f.write('},\n')
             f.write('}\n')
             f.write('\n')
+
+def write_long_text_to_file(text, f, line_length=88, indent=0, prefix=''):
+    """
+    Writes a long text to a file, formatting each line to a specified length.
+
+    Args:
+        text (str): The input text to write to the file.
+        f (str): The path to the file to write to.
+        line_length (int): The desired line length. Defaults to 88.
+        indent (int): The number of spaces to add at the beginning of each line. Defaults to 0.
+        prefix (str): The static string to include before the text. Defaults to ''.
+
+    Returns:
+        None
+    """
+    words = text.split()
+    current_line = prefix
+    for i, word in enumerate(words):
+        if len(current_line) + len(word) + 1 <= line_length:
+            current_line += word + ' '
+        else:
+            f.write(current_line[:-1] + '\n')
+            current_line = ' ' * indent
+            current_line += word + ' '
+    if current_line:
+        f.write(current_line[:-1])
 
 def find_longest_key_length(d):
     """Finds the length of the longest key in a dictionary of BibTeX entries.
