@@ -118,13 +118,16 @@ def write_to_file(data, file_path):
         file_path (str): The path to the file to write to.
     """
     max_key_length = find_longest_key_length(data)
+    # round up to nearest multiple of 4
+    tab_length = max_key_length - (max_key_length % 4) + 3
+
     with open(file_path, 'w') as f:
-        for key, value in data.items():
+        for key, value in sorted(data.items()):
             f.write(f"@{value['type']}" + '{' + f'{key},\n')
-            for field_key, field_value in value.items():
+            for field_key, field_value in sorted(value.items()):
                 if field_key != 'type':
-                    spaces = ' ' * (max_key_length - len(field_key))
-                    f.write(f'  {field_key} {spaces}= {{{field_value}}},\n')
+                    spaces = ' ' * (tab_length - len(field_key))
+                    f.write(f'    {field_key} {spaces}= {{{field_value}}},\n')
             f.write('}\n')
             f.write('\n')
 
